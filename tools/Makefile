@@ -22,26 +22,6 @@
 #    That's as long as the features of those tools aren't modified.
 #
 
-override HOSTCC = $(CC)
-
-ifneq ($(TARGET_CFLAGS),)
-KBUILD_HOSTCFLAGS = $(TARGET_CFLAGS)
-endif
-ifneq ($(TARGET_LDFLAGS),)
-KBUILD_HOSTLDFLAGS = $(TARGET_LDFLAGS)
-endif
-
-# Compile for a hosted environment on the target
-HOST_EXTRACFLAGS  = -I$(srctree)/tools \
-		$(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
-		-idirafter $(srctree)/tools/env \
-		-DUSE_HOSTCC \
-		-DTEXT_BASE=$(TEXT_BASE)
-
-ifeq ($(MTD_VERSION),old)
-HOST_EXTRACFLAGS += -DMTD_OLD
-endif
-
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_ARCH_KIRKWOOD = y
@@ -272,7 +252,7 @@ mkeficapsule-objs := generated/lib/uuid.o \
 	generated/lib/sha1.o \
 	$(LIBFDT_OBJS) \
 	mkeficapsule.o
-hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) +=
+hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
 
 mkfwumdata-objs := mkfwumdata.o generated/lib/crc32.o
 HOSTLDLIBS_mkfwumdata += -luuid
@@ -336,7 +316,7 @@ HOST_EXTRACFLAGS += -include $(srctree)/include/compiler.h \
 		-D__KERNEL_STRICT_NAMES \
 		-D_GNU_SOURCE
 
-__build:	$(LOGO-n)
+__build:	$(LOGO-y)
 
 $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
